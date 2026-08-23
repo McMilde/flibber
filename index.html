@@ -30,6 +30,7 @@
     <button id="startKnapp" class="flibbknapp">FLIBB</button>
     <p class="hint">Trykk / mellomrom for å flibbe. Jo villere du spretter, jo høyere kaos-multiplikator.</p>
     <p class="dagens-info" id="dagensBeste"></p>
+    <button id="visHighscoreKnapp" class="lenkeknapp">🏆 Topp 10</button>
   </div>
 
   <div id="doedsskjerm" class="skjerm hidden">
@@ -40,7 +41,21 @@
       <div class="poeng"><span id="sluttPoeng">0</span> poeng</div>
     </div>
     <p class="dagens-info" id="nyRekordTekst"></p>
+
+    <div id="highscoreSkjema" class="hidden">
+      <p class="hint">🎉 Du er blant de 10 beste! Skriv navnet ditt:</p>
+      <input type="text" id="highscoreNavn" maxlength="20" placeholder="Ditt navn" />
+      <button id="lagreHighscoreKnapp" class="flibbknapp liten">LAGRE PÅ LISTEN</button>
+    </div>
+
     <button id="proveIgjenKnapp" class="flibbknapp">FLIBB IGJEN</button>
+    <button id="visHighscoreKnapp2" class="lenkeknapp">🏆 Se topp 10</button>
+  </div>
+
+  <div id="highscoreSkjerm" class="skjerm hidden">
+    <h2>🏆 Topp 10 Flibbere</h2>
+    <ol id="highscoreListe" class="highscore-liste"></ol>
+    <button id="lukkHighscoreKnapp" class="flibbknapp">LUKK</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>

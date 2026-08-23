@@ -1,0 +1,4 @@
+server/highscore.db
+server/__pycache__/
+*.pyc
+server.log

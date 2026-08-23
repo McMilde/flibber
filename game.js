@@ -1,3 +1,77 @@
+// ---- Highscore (delt topp 10 via egen server) ----
+
+const HIGHSCORE_API = "https://flibber-highscore.up.railway.app/api/highscore";
+let sisteHighscoreListe = [];
+
+async function hentHighscore() {
+  try {
+    const res = await fetch(HIGHSCORE_API);
+    sisteHighscoreListe = await res.json();
+  } catch (e) {
+    sisteHighscoreListe = [];
+  }
+  return sisteHighscoreListe;
+}
+
+function tiendePlassPoeng() {
+  if (sisteHighscoreListe.length < 10) return 0;
+  return sisteHighscoreListe[9].poeng;
+}
+
+function renderHighscoreListe(liste, elementId) {
+  const el = document.getElementById(elementId);
+  if (liste.length === 0) {
+    el.innerHTML = `<li class="hs-tom">Ingen har flibbet ennå. Bli den første!</li>`;
+    return;
+  }
+  el.innerHTML = liste
+    .map(
+      (r, i) => `
+      <li>
+        <span class="plass">${i + 1}.</span>
+        <span class="hs-navn">${escapeHtmlFlibber(r.navn)}</span>
+        <span class="hs-poeng">${r.poeng}</span>
+      </li>`
+    )
+    .join("");
+}
+
+function escapeHtmlFlibber(tekst) {
+  const div = document.createElement("div");
+  div.textContent = tekst || "";
+  return div.innerHTML;
+}
+
+let skjermFoerHighscore = "startskjerm";
+
+async function visHighscoreSkjerm() {
+  skjermFoerHighscore = document.getElementById("doedsskjerm").classList.contains("hidden")
+    ? "startskjerm"
+    : "doedsskjerm";
+  document.getElementById("startskjerm").classList.add("hidden");
+  document.getElementById("doedsskjerm").classList.add("hidden");
+  document.getElementById("highscoreSkjerm").classList.remove("hidden");
+  renderHighscoreListe(await hentHighscore(), "highscoreListe");
+}
+
+function lukkHighscoreSkjerm() {
+  document.getElementById("highscoreSkjerm").classList.add("hidden");
+  document.getElementById(skjermFoerHighscore).classList.remove("hidden");
+}
+
+async function lagreHighscore(navn, poeng) {
+  try {
+    const res = await fetch(HIGHSCORE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ navn, poeng }),
+    });
+    sisteHighscoreListe = await res.json();
+  } catch (e) {
+    // ingen internett/server nede - ikke kritisk, spillet fungerer uansett
+  }
+}
+
 // ---- Seedet tilfeldighet (samme bane for alle, samme dag) ----
 
 function lagRng(seed) {
@@ -345,7 +419,22 @@ function dod(arsak) {
 
   document.getElementById("hud").classList.add("hidden");
   document.getElementById("doedsskjerm").classList.remove("hidden");
+
+  const skjema = document.getElementById("highscoreSkjema");
+  if (poeng > tiendePlassPoeng()) {
+    skjema.classList.remove("hidden");
+    document.getElementById("highscoreNavn").value = "";
+    const lagreKnapp = document.getElementById("lagreHighscoreKnapp");
+    lagreKnapp.disabled = false;
+    lagreKnapp.textContent = "LAGRE PÅ LISTEN";
+    ventendeHighscorePoeng = poeng;
+  } else {
+    skjema.classList.add("hidden");
+    ventendeHighscorePoeng = null;
+  }
 }
+
+let ventendeHighscorePoeng = null;
 
 // ---- Kollisjon og fysikk-tikk ----
 
@@ -522,7 +611,25 @@ function startSpill() {
 document.getElementById("startKnapp").addEventListener("click", startSpill);
 document.getElementById("proveIgjenKnapp").addEventListener("click", startSpill);
 
+document.getElementById("visHighscoreKnapp").addEventListener("click", visHighscoreSkjerm);
+document.getElementById("visHighscoreKnapp2").addEventListener("click", visHighscoreSkjerm);
+document.getElementById("lukkHighscoreKnapp").addEventListener("click", lukkHighscoreSkjerm);
+
+document.getElementById("lagreHighscoreKnapp").addEventListener("click", async () => {
+  if (ventendeHighscorePoeng === null) return;
+  const navn = document.getElementById("highscoreNavn").value;
+  const knapp = document.getElementById("lagreHighscoreKnapp");
+  knapp.disabled = true;
+  knapp.textContent = "LAGRER ...";
+  await lagreHighscore(navn, ventendeHighscorePoeng);
+  ventendeHighscorePoeng = null;
+  document.getElementById("highscoreSkjema").classList.add("hidden");
+  knapp.disabled = false;
+  knapp.textContent = "LAGRET";
+});
+
 const beste = hentBeste();
 if (beste.dagens > 0) {
   document.getElementById("dagensBeste").textContent = `Dagens beste: ${beste.dagens} poeng`;
 }
+hentHighscore();
