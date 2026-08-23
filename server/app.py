@@ -91,15 +91,6 @@ def api_lagre_highscore():
     return jsonify(hent_topp_10()), 201
 
 
-@app.route("/api/highscore/_rydd_testdata", methods=["POST"])
-def api_rydd_testdata():
-    conn = hent_db()
-    conn.execute("DELETE FROM highscore WHERE navn = ?", ("LiveTest",))
-    conn.commit()
-    conn.close()
-    return jsonify(hent_topp_10())
-
-
 @app.route("/")
 def index():
     return jsonify({"status": "Flibber highscore-API kjører."})
