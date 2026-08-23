@@ -245,3 +245,35 @@ html, body {
 .highscore-liste li .plass { color: #e17055; width: 26px; }
 .highscore-liste li .hs-navn { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .highscore-liste li .hs-poeng { color: #00786e; }
+
+#reglerSkjerm {
+  justify-content: flex-start;
+  overflow-y: auto;
+  padding-top: 40px;
+  padding-bottom: 40px;
+}
+
+.regel-liste {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 16px;
+  width: 100%;
+  max-width: 420px;
+  text-align: left;
+}
+
+.regel-liste li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2d3436;
+  line-height: 1.4;
+}
+
+.regel-liste li:nth-child(odd) { background: rgba(255,255,255,0.5); }
+.regel-ikon { font-size: 20px; flex-shrink: 0; }
+.regel-tekst { flex: 1; min-width: 0; }

@@ -27,6 +27,7 @@
   <div id="startskjerm" class="skjerm">
     <h1>FLIBBER</h1>
     <p class="tagline">Hvor langt klarer du å flibbe?</p>
+    <button id="visReglerKnapp" class="flibbknapp liten">❓ Slik spiller du</button>
     <button id="startKnapp" class="flibbknapp">FLIBB</button>
     <p class="hint">Trykk / mellomrom for å flibbe. Jo villere du spretter, jo høyere kaos-multiplikator.</p>
     <p class="dagens-info" id="dagensBeste"></p>
@@ -50,12 +51,27 @@
 
     <button id="proveIgjenKnapp" class="flibbknapp">FLIBB IGJEN</button>
     <button id="visHighscoreKnapp2" class="lenkeknapp">🏆 Se topp 10</button>
+    <button id="visReglerKnapp2" class="lenkeknapp">❓ Slik spiller du</button>
   </div>
 
   <div id="highscoreSkjerm" class="skjerm hidden">
     <h2>🏆 Topp 10 Flibbere</h2>
     <ol id="highscoreListe" class="highscore-liste"></ol>
     <button id="lukkHighscoreKnapp" class="flibbknapp">LUKK</button>
+  </div>
+
+  <div id="reglerSkjerm" class="skjerm hidden">
+    <h2>🫨 Slik fungerer FLIBBER</h2>
+    <ul class="regel-liste">
+      <li><span class="regel-ikon">👆</span><span class="regel-tekst">Trykk skjermen, klikk, eller bruk mellomromstasten for å «flibbe» (hoppe). Maks <strong>5 flibb</strong> før du må lande igjen.</span></li>
+      <li><span class="regel-ikon">🏃</span><span class="regel-tekst">Flibber springer automatisk framover hele tiden — du styrer bare hoppene, ikke farten.</span></li>
+      <li><span class="regel-ikon">🔥</span><span class="regel-tekst">Kaos-meteret fylles jo villere du spretter og snurrer. Høyt kaos gir høyere poeng-multiplikator.</span></li>
+      <li><span class="regel-ikon">🪤</span><span class="regel-tekst">Fjærer og vipper sender deg videre — men ikke alltid dit du vil. Sager og fall dreper deg momentant.</span></li>
+      <li><span class="regel-ikon">✨</span><span class="regel-tekst">Finn den sjeldne «Flibbetiflabb-breifllabb»-kraften: 8 sekunder der du ikke kan dø.</span></li>
+      <li><span class="regel-ikon">📅</span><span class="regel-tekst">Alle spillere får akkurat samme bane hver dag («Dagens Flibb»), så alle konkurrerer på likt grunnlag.</span></li>
+      <li><span class="regel-ikon">🏆</span><span class="regel-tekst">Havner du blant de 10 beste poengene noensinne, kommer du på den delte highscore-listen for alle spillere.</span></li>
+    </ul>
+    <button id="lukkReglerKnapp" class="flibbknapp">SKJØNER</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>

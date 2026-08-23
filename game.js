@@ -59,6 +59,22 @@ function lukkHighscoreSkjerm() {
   document.getElementById(skjermFoerHighscore).classList.remove("hidden");
 }
 
+let skjermFoerRegler = "startskjerm";
+
+function visReglerSkjerm() {
+  skjermFoerRegler = document.getElementById("doedsskjerm").classList.contains("hidden")
+    ? "startskjerm"
+    : "doedsskjerm";
+  document.getElementById("startskjerm").classList.add("hidden");
+  document.getElementById("doedsskjerm").classList.add("hidden");
+  document.getElementById("reglerSkjerm").classList.remove("hidden");
+}
+
+function lukkReglerSkjerm() {
+  document.getElementById("reglerSkjerm").classList.add("hidden");
+  document.getElementById(skjermFoerRegler).classList.remove("hidden");
+}
+
 async function lagreHighscore(navn, poeng) {
   try {
     const res = await fetch(HIGHSCORE_API, {
@@ -614,6 +630,10 @@ document.getElementById("proveIgjenKnapp").addEventListener("click", startSpill)
 document.getElementById("visHighscoreKnapp").addEventListener("click", visHighscoreSkjerm);
 document.getElementById("visHighscoreKnapp2").addEventListener("click", visHighscoreSkjerm);
 document.getElementById("lukkHighscoreKnapp").addEventListener("click", lukkHighscoreSkjerm);
+
+document.getElementById("visReglerKnapp").addEventListener("click", visReglerSkjerm);
+document.getElementById("visReglerKnapp2").addEventListener("click", visReglerSkjerm);
+document.getElementById("lukkReglerKnapp").addEventListener("click", lukkReglerSkjerm);
 
 document.getElementById("lagreHighscoreKnapp").addEventListener("click", async () => {
   if (ventendeHighscorePoeng === null) return;
