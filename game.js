@@ -199,8 +199,9 @@ function lagSegmenter(seedTekst) {
     }
 
     const harFlibbekraft = i >= 5 && rng() < 0.045;
+    const harFlykraft = i >= 8 && rng() < 0.035;
 
-    segmenter.push({ x1: x, x2: x + bredde, y, type, harFlibbekraft });
+    segmenter.push({ x1: x, x2: x + bredde, y, type, harFlibbekraft, harFlykraft });
     x += bredde;
   }
   return segmenter;
@@ -281,6 +282,16 @@ function byggBane(segmenter) {
       });
       kropper.push(kraft);
     }
+
+    if (seg.harFlykraft) {
+      const vinge = Bodies.circle(midtX + (Math.random() - 0.5) * bredde * 0.4, seg.y - 70, 15, {
+        isStatic: true,
+        isSensor: true,
+        label: "flykraft",
+        render: { fillStyle: "#74b9ff", strokeStyle: "#ffffff", lineWidth: 4 },
+      });
+      kropper.push(vinge);
+    }
   }
   return kropper;
 }
@@ -342,6 +353,8 @@ let spillerLever = false;
 let rotasjonSum = 0;
 let antallKollisjoner = 0;
 let uovervinneligTil = 0;
+let flyModusTil = 0;
+let flibbHoldes = false;
 
 const MAKS_HOPP = 5;
 let hoppIgjen = MAKS_HOPP;
@@ -351,7 +364,9 @@ function nullstillTilstand() {
   antallKollisjoner = 0;
   hoppIgjen = MAKS_HOPP;
   uovervinneligTil = 0;
-  skjulSuperkraftBanner();
+  flyModusTil = 0;
+  flibbHoldes = false;
+  skjulKraftVisuelt();
   Body.setPosition(flibber, { x: START_X, y: BAKKE_Y - 100 });
   Body.setVelocity(flibber, { x: 0, y: 0 });
   Body.setAngularVelocity(flibber, 0);
@@ -361,13 +376,17 @@ function erUovervinnelig() {
   return performance.now() < uovervinneligTil;
 }
 
+function erFlyModus() {
+  return performance.now() < flyModusTil;
+}
+
 const MAKS_FART_Y_OPP = -11;
 
 function flibb() {
   if (!spillerLever) return;
-  if (hoppIgjen <= 0) return; // maks 3 flibb i lufta før du må lande på noe
+  if (hoppIgjen <= 0 && !erFlyModus()) return; // maks 5 flibb i lufta, med mindre du kan fly
   if (flibber.velocity.y < MAKS_FART_Y_OPP) return; // allerede i full fart oppover
-  hoppIgjen--;
+  if (!erFlyModus()) hoppIgjen--;
   const styrke = 0.017 * flibber.mass;
   const vinkel = -Math.PI / 2 + (Math.random() - 0.5) * 1.3;
   const kraft = { x: Math.cos(vinkel) * styrke, y: Math.sin(vinkel) * styrke };
@@ -465,6 +484,11 @@ Events.on(engine, "collisionStart", (event) => {
       aktiverSuperkraft();
       continue;
     }
+    if (annen.label === "flykraft") {
+      Composite.remove(world, annen);
+      aktiverFlykraft();
+      continue;
+    }
     if (annen.label === "sag") {
       if (erUovervinnelig()) continue;
       dod("sag");
@@ -513,13 +537,19 @@ Events.on(engine, "beforeUpdate", () => {
     Body.setAngularVelocity(sag, 0.25);
   }
 
+  if (flibbHoldes && erFlyModus()) {
+    const malfart = -6.5;
+    Body.setVelocity(flibber, {
+      x: flibber.velocity.x,
+      y: flibber.velocity.y + (malfart - flibber.velocity.y) * 0.2,
+    });
+  }
+
   if (flibber.position.y > BAKKE_Y + 500 && !erUovervinnelig()) {
     dod("fall");
   }
 
-  if (uovervinneligTil > 0) {
-    oppdaterSuperkraftBanner();
-  }
+  oppdaterKraftTilstand();
 });
 
 Events.on(render, "beforeRender", () => {
@@ -565,25 +595,51 @@ function tegnFlibberAnsikt() {
 }
 
 const SUPERKRAFT_VARIGHET = 8000;
+const FLYKRAFT_VARIGHET = 8000;
 
 function aktiverSuperkraft() {
   uovervinneligTil = performance.now() + SUPERKRAFT_VARIGHET;
-  document.getElementById("superkraftBanner").classList.remove("hidden");
-  flibber.render.strokeStyle = "#fd79a8";
-  flibber.render.lineWidth = 6;
+  flyModusTil = Math.max(flyModusTil, performance.now() + SUPERKRAFT_VARIGHET);
 }
 
-function oppdaterSuperkraftBanner() {
-  const igjen = Math.max(0, (uovervinneligTil - performance.now()) / 1000);
-  if (igjen <= 0) {
-    skjulSuperkraftBanner();
-    return;
+function aktiverFlykraft() {
+  flyModusTil = Math.max(flyModusTil, performance.now() + FLYKRAFT_VARIGHET);
+}
+
+// Kjøres hver fysikk-tikk mens man lever: styrer both banner-tekst/synlighet
+// og glødefargen rundt Flibber, ut fra hvilke(n) av kreftene som er aktive akkurat na.
+function oppdaterKraftTilstand() {
+  if (erUovervinnelig()) {
+    flibber.render.strokeStyle = "#fd79a8";
+    flibber.render.lineWidth = 6;
+  } else if (erFlyModus()) {
+    flibber.render.strokeStyle = "#74b9ff";
+    flibber.render.lineWidth = 6;
+  } else {
+    flibber.render.strokeStyle = "#e17055";
+    flibber.render.lineWidth = 3;
   }
-  document.getElementById("superkraftTid").textContent = igjen.toFixed(1);
+
+  const superkraftBanner = document.getElementById("superkraftBanner");
+  if (erUovervinnelig()) {
+    superkraftBanner.classList.remove("hidden");
+    document.getElementById("superkraftTid").textContent = ((uovervinneligTil - performance.now()) / 1000).toFixed(1);
+  } else {
+    superkraftBanner.classList.add("hidden");
+  }
+
+  const flykraftBanner = document.getElementById("flykraftBanner");
+  if (erFlyModus() && !erUovervinnelig()) {
+    flykraftBanner.classList.remove("hidden");
+    document.getElementById("flykraftTid").textContent = ((flyModusTil - performance.now()) / 1000).toFixed(1);
+  } else {
+    flykraftBanner.classList.add("hidden");
+  }
 }
 
-function skjulSuperkraftBanner() {
+function skjulKraftVisuelt() {
   document.getElementById("superkraftBanner").classList.add("hidden");
+  document.getElementById("flykraftBanner").classList.add("hidden");
   flibber.render.strokeStyle = "#e17055";
   flibber.render.lineWidth = 3;
 }
@@ -599,13 +655,23 @@ function oppdaterHud() {
 
 function trykkFlibb(e) {
   if (e) e.preventDefault();
+  flibbHoldes = true;
   if (spillerLever) flibb();
+}
+
+function slippFlibb() {
+  flibbHoldes = false;
 }
 
 window.addEventListener("keydown", (e) => {
   if (e.code === "Space") trykkFlibb(e);
 });
+window.addEventListener("keyup", (e) => {
+  if (e.code === "Space") slippFlibb();
+});
 canvas.addEventListener("pointerdown", trykkFlibb);
+window.addEventListener("pointerup", slippFlibb);
+window.addEventListener("pointercancel", slippFlibb);
 
 // ---- Start / prøv igjen ----
 

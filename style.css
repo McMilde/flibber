@@ -21,13 +21,13 @@ html, body {
 
 .hidden { display: none !important; }
 
-#superkraftBanner {
+#superkraftBanner,
+#flykraftBanner {
   position: fixed;
   top: 60px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 6;
-  background: linear-gradient(90deg, #fd79a8, #fdcb6e);
   color: white;
   font-family: "Baloo 2", sans-serif;
   font-weight: 800;
@@ -38,6 +38,9 @@ html, body {
   white-space: nowrap;
   animation: superkraft-puls 0.5s infinite alternate;
 }
+
+#superkraftBanner { background: linear-gradient(90deg, #fd79a8, #fdcb6e); }
+#flykraftBanner { background: linear-gradient(90deg, #74b9ff, #55efc4); }
 
 @keyframes superkraft-puls {
   from { transform: translateX(-50%) scale(1); }
