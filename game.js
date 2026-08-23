@@ -108,7 +108,9 @@ function lagSegmenter(seedTekst) {
       else if (terning < 0.54) type = "tonne";
     }
 
-    segmenter.push({ x1: x, x2: x + bredde, y, type });
+    const harFlibbekraft = i >= 5 && rng() < 0.045;
+
+    segmenter.push({ x1: x, x2: x + bredde, y, type, harFlibbekraft });
     x += bredde;
   }
   return segmenter;
@@ -179,6 +181,16 @@ function byggBane(segmenter) {
       });
       kropper.push(plattform);
     }
+
+    if (seg.harFlibbekraft) {
+      const kraft = Bodies.circle(midtX + (Math.random() - 0.5) * bredde * 0.4, seg.y - 70, 15, {
+        isStatic: true,
+        isSensor: true,
+        label: "flibbekraft",
+        render: { fillStyle: "#fd79a8", strokeStyle: "#ffeaa7", lineWidth: 4 },
+      });
+      kropper.push(kraft);
+    }
   }
   return kropper;
 }
@@ -239,20 +251,33 @@ let spillStartet = false;
 let spillerLever = false;
 let rotasjonSum = 0;
 let antallKollisjoner = 0;
+let uovervinneligTil = 0;
+
+const MAKS_HOPP = 3;
+let hoppIgjen = MAKS_HOPP;
 
 function nullstillTilstand() {
   rotasjonSum = 0;
   antallKollisjoner = 0;
+  hoppIgjen = MAKS_HOPP;
+  uovervinneligTil = 0;
+  skjulSuperkraftBanner();
   Body.setPosition(flibber, { x: START_X, y: BAKKE_Y - 100 });
   Body.setVelocity(flibber, { x: 0, y: 0 });
   Body.setAngularVelocity(flibber, 0);
+}
+
+function erUovervinnelig() {
+  return performance.now() < uovervinneligTil;
 }
 
 const MAKS_FART_Y_OPP = -11;
 
 function flibb() {
   if (!spillerLever) return;
+  if (hoppIgjen <= 0) return; // maks 3 flibb i lufta før du må lande på noe
   if (flibber.velocity.y < MAKS_FART_Y_OPP) return; // allerede i full fart oppover
+  hoppIgjen--;
   const styrke = 0.017 * flibber.mass;
   const vinkel = -Math.PI / 2 + (Math.random() - 0.5) * 1.3;
   const kraft = { x: Math.cos(vinkel) * styrke, y: Math.sin(vinkel) * styrke };
@@ -268,7 +293,7 @@ function beregnDistanse() {
 }
 
 function beregnMultiplikator() {
-  return Math.min(6, 1 + antallKollisjoner * 0.22 + rotasjonSum * 0.12);
+  return Math.min(6, 1 + antallKollisjoner * 0.09 + rotasjonSum * 0.012);
 }
 
 // ---- Rekorder (localStorage) ----
@@ -330,7 +355,13 @@ Events.on(engine, "collisionStart", (event) => {
     const annen = bodyA === flibber ? bodyB : bodyB === flibber ? bodyA : null;
     if (!annen) continue;
 
+    if (annen.label === "flibbekraft") {
+      Composite.remove(world, annen);
+      aktiverSuperkraft();
+      continue;
+    }
     if (annen.label === "sag") {
+      if (erUovervinnelig()) continue;
       dod("sag");
       return;
     }
@@ -348,16 +379,19 @@ Events.on(engine, "collisionStart", (event) => {
       // Matter sin restitusjon gir ikke et pålitelig sprett ved lav fart inn,
       // så vi setter farten direkte for en garantert, morsom sprett hver gang.
       Body.setVelocity(flibber, { x: flibber.velocity.x + (Math.random() - 0.5) * 2, y: -13 });
-      antallKollisjoner += 1.5;
+      antallKollisjoner += 0.6;
+      hoppIgjen = MAKS_HOPP;
       continue;
     }
     if (annen.isStatic === false) {
       // vippe (dynamisk plank) - moderat kaos-bidrag
-      antallKollisjoner += 1;
+      antallKollisjoner += 0.4;
+      hoppIgjen = MAKS_HOPP;
       continue;
     }
-    // vanlig plattform - små, rolige landinger skal ikke gi mye kaos
-    antallKollisjoner += 0.3;
+    // vanlig plattform - en landing gir tilbake flibbene dine, men lite kaos
+    antallKollisjoner += 0.1;
+    hoppIgjen = MAKS_HOPP;
   }
 });
 
@@ -374,8 +408,12 @@ Events.on(engine, "beforeUpdate", () => {
     Body.setAngularVelocity(sag, 0.25);
   }
 
-  if (flibber.position.y > BAKKE_Y + 500) {
+  if (flibber.position.y > BAKKE_Y + 500 && !erUovervinnelig()) {
     dod("fall");
+  }
+
+  if (uovervinneligTil > 0) {
+    oppdaterSuperkraftBanner();
   }
 });
 
@@ -419,6 +457,30 @@ function tegnFlibberAnsikt() {
   ctx.strokeStyle = "#2d3436";
   ctx.stroke();
   ctx.restore();
+}
+
+const SUPERKRAFT_VARIGHET = 8000;
+
+function aktiverSuperkraft() {
+  uovervinneligTil = performance.now() + SUPERKRAFT_VARIGHET;
+  document.getElementById("superkraftBanner").classList.remove("hidden");
+  flibber.render.strokeStyle = "#fd79a8";
+  flibber.render.lineWidth = 6;
+}
+
+function oppdaterSuperkraftBanner() {
+  const igjen = Math.max(0, (uovervinneligTil - performance.now()) / 1000);
+  if (igjen <= 0) {
+    skjulSuperkraftBanner();
+    return;
+  }
+  document.getElementById("superkraftTid").textContent = igjen.toFixed(1);
+}
+
+function skjulSuperkraftBanner() {
+  document.getElementById("superkraftBanner").classList.add("hidden");
+  flibber.render.strokeStyle = "#e17055";
+  flibber.render.lineWidth = 3;
 }
 
 function oppdaterHud() {
