@@ -91,21 +91,21 @@ function lagSegmenter(seedTekst) {
   for (let i = 0; i < 60; i++) {
     // Vanskelighetsgraden trappes opp gradvis de første segmentene, så man
     // rekker å lære seg kontrollene før banen blir virkelig kaotisk.
-    const opptrapping = Math.min(1, i / 8);
-    const gapMaks = 60 + opptrapping * 130;
-    const hoydeMaks = 40 + opptrapping * 150;
+    const opptrapping = Math.min(1, i / 12);
+    const gapMaks = 45 + opptrapping * 90;
+    const hoydeMaks = 30 + opptrapping * 100;
 
-    x += 45 + rng() * gapMaks;
-    const bredde = 130 + rng() * 200;
+    x += 35 + rng() * gapMaks;
+    const bredde = 160 + rng() * 200;
     y = Math.min(560, Math.max(300, y + (rng() - 0.5) * hoydeMaks));
 
     const terning = rng();
     let type = "vanlig";
     if (i >= 3) {
-      if (terning < 0.16) type = "trampoline";
-      else if (terning < 0.28) type = "vippe";
-      else if (terning < 0.4 && i >= 6) type = "sag";
-      else if (terning < 0.54) type = "tonne";
+      if (terning < 0.18) type = "trampoline";
+      else if (terning < 0.3) type = "vippe";
+      else if (terning < 0.36 && i >= 10) type = "sag";
+      else if (terning < 0.46) type = "tonne";
     }
 
     const harFlibbekraft = i >= 5 && rng() < 0.045;
@@ -253,7 +253,7 @@ let rotasjonSum = 0;
 let antallKollisjoner = 0;
 let uovervinneligTil = 0;
 
-const MAKS_HOPP = 3;
+const MAKS_HOPP = 5;
 let hoppIgjen = MAKS_HOPP;
 
 function nullstillTilstand() {
