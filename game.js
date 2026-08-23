@@ -1,6 +1,6 @@
 // ---- Highscore (delt topp 10 via egen server) ----
 
-const HIGHSCORE_API = "https://flibber-highscore.up.railway.app/api/highscore";
+const HIGHSCORE_API = "https://flibber-production.up.railway.app/api/highscore";
 let sisteHighscoreListe = [];
 
 async function hentHighscore() {
