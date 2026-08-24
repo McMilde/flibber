@@ -380,14 +380,14 @@ function erFlyModus() {
   return performance.now() < flyModusTil;
 }
 
-const MAKS_FART_Y_OPP = -11;
+const MAKS_FART_Y_OPP = -12.5;
 
 function flibb() {
   if (!spillerLever) return;
   if (hoppIgjen <= 0 && !erFlyModus()) return; // maks 5 flibb i lufta, med mindre du kan fly
   if (flibber.velocity.y < MAKS_FART_Y_OPP) return; // allerede i full fart oppover
   if (!erFlyModus()) hoppIgjen--;
-  const styrke = 0.017 * flibber.mass;
+  const styrke = 0.019 * flibber.mass;
   const vinkel = -Math.PI / 2 + (Math.random() - 0.5) * 1.3;
   const kraft = { x: Math.cos(vinkel) * styrke, y: Math.sin(vinkel) * styrke };
   const forskyvning = {
@@ -524,12 +524,12 @@ Events.on(engine, "collisionStart", (event) => {
   }
 });
 
-const MAKS_FART_X = 5.5;
+const MAKS_FART_X = 6.2;
 
 Events.on(engine, "beforeUpdate", () => {
   if (!spillerLever) return;
   if (flibber.velocity.x < MAKS_FART_X) {
-    Body.applyForce(flibber, flibber.position, { x: 0.00028 * flibber.mass, y: 0 });
+    Body.applyForce(flibber, flibber.position, { x: 0.00032 * flibber.mass, y: 0 });
   }
   rotasjonSum += Math.abs(flibber.angularVelocity);
 
