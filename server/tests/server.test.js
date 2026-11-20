@@ -76,3 +76,18 @@ test('navnefilter: vanlige navn slipper gjennom', () => {
   assert.equal(rensNavn('<b>Ola</b>'), 'bOla/b');
   assert.equal(rensNavn('a'.repeat(30)).length, 16);
 });
+
+test('serveren viser bare spillets egne filer', async () => {
+  const { lagServer } = await import('../server.js');
+  const server = lagServer(testDb());
+  await new Promise(r => server.listen(0, r));
+  const port = server.address().port;
+  const status = async (p) => (await fetch(`http://localhost:${port}${p}`)).status;
+  try {
+    assert.equal(await status('/'), 200);
+    assert.equal(await status('/img/trio-05.png'), 200);
+    for (const p of ['/server/server.js', '/Server/server.js', '/CLAUDE.md', '/.git/config', '/..%2f..%2fetc%2fpasswd', '/etc/passwd', '/img/../server/package.json']) {
+      assert.equal(await status(p), 404, p);
+    }
+  } finally { server.close(); }
+});

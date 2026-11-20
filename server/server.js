@@ -179,9 +179,11 @@ function serverFil(req, res) {
   let fil = decodeURIComponent(url.pathname);
   if (fil === '/') fil = '/index.html';
   const full = path.normalize(path.join(PUBLIC_DIR, fil));
-  const relativ = path.relative(PUBLIC_DIR, full);
-  if (relativ.startsWith('..') || path.isAbsolute(relativ) || relativ.startsWith('server') || /(^|[\\/])\./.test(relativ)) {
-    res.writeHead(404); return res.end();
+  // Bare spillets egne filer kan hentes (fast liste). Alt annet, som serverkode, database
+  // og andre filer på maskinen, avvises uansett hvordan adressen er skrevet.
+  const relativ = path.relative(PUBLIC_DIR, full).split(path.sep).join('/');
+  if (!/^(index\.html|game\.js|style\.css|img\/[a-z0-9-]+\.png)$/.test(relativ)) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Fant ikke siden');
   }
   fs.readFile(full, (err, innhold) => {
     if (err) { res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' }); return res.end('Fant ikke siden'); }
