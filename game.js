@@ -854,7 +854,9 @@ function visToast(tekst) {
 
 $('delknapp').addEventListener('click', async () => {
   const tekst = `Jeg fikk ${poeng} poeng i Pipeslipp, julebrus-spillet til Mack. Klarer du flere?`;
-  const url = location.href.split('#')[0];
+  // Når spillet er bygget inn på mack.no, sendes Mack-sidens adresse med (?del=...), så det er den som deles
+  const del = new URLSearchParams(location.search).get('del');
+  const url = del && /^https:\/\/(www\.)?mack\.no\//.test(del) ? del : location.href.split('#')[0];
   if (navigator.share) {
     try { await navigator.share({ title: 'Pipeslipp', text: tekst, url }); } catch { /* avbrutt */ }
     return;
