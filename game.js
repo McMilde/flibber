@@ -16,6 +16,7 @@ const PRODUKTER = [
 
 // ---------- Spillkonstanter (enhet: 1 = 1 % av skjermhøyden) ----------
 const BAKKE = 91;
+const TREFF_DYBDE = 3; // hvor langt under pipekanten flaskebunnen kan være og fortsatt telle som treff
 const SLEDE_Y = 19;
 const TYNGDE = 170;
 const START_FART = 21;
@@ -221,7 +222,7 @@ function nyttHus(x, vanskelighet) {
   const b = 15 + Math.random() * 11;
   const veggH = 11 + Math.random() * 10;
   const takH = 6 + Math.random() * 4;
-  const pipeB = Math.max(4.4, 7.2 - vanskelighet * 0.07);
+  const pipeB = Math.max(5, 7.4 - vanskelighet * 0.06);
   const venstre = Math.random() < 0.5;
   const rel = venstre ? 0.24 + Math.random() * 0.1 : 0.66 + Math.random() * 0.1;
   const farge = HUSFARGER[Math.floor(Math.random() * HUSFARGER.length)];
@@ -603,8 +604,12 @@ function oppdater(dt) {
       let ferdig = false;
       for (const h of hus) {
         const p = pipeGeometri(h);
-        if (forrigeBunn <= p.toppY && bunn >= p.toppY && f.x >= p.venstre && f.x <= p.høyre) {
-          const perfekt = Math.abs(f.x - p.cx) <= h.pipe.b * 0.2;
+        // Tilgivende treff: det holder at en del av flasken er over pipeåpningen (inkludert den hvite kanten),
+        // og flasken kan «skli inn» litt etter at bunnen har passert toppen av pipa.
+        const slingring = f.w * 0.45 + 0.8;
+        const iPipa = Math.abs(f.x - p.cx) <= h.pipe.b / 2 + slingring;
+        if (forrigeBunn <= p.toppY + TREFF_DYBDE && bunn >= p.toppY && iPipa) {
+          const perfekt = Math.abs(f.x - p.cx) <= h.pipe.b * 0.25;
           treff(f, h, perfekt);
           ferdig = true;
           break;
