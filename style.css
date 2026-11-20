@@ -104,13 +104,16 @@ canvas#spill {
 .skjerm {
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
   padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
   background: linear-gradient(180deg, rgba(7, 21, 35, .35), rgba(7, 21, 35, .75));
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .kort {
+  margin: auto; /* midtstilt, men starter øverst og kan rulles når kortet er høyere enn skjermen */
   width: 100%;
   max-width: 440px;
   text-align: center;
@@ -175,6 +178,7 @@ h2 {
   padding: 13px 16px;
   min-height: 48px;
   cursor: pointer;
+  touch-action: manipulation;
   transition: background .15s, transform .1s;
 }
 .knapp:hover { background: rgba(243, 247, 250, .16); }
@@ -199,13 +203,7 @@ h2 {
 .knapp.liten { width: auto; font-size: 15px; padding: 10px 14px; min-height: 44px; }
 .knapp.hoved.liten { font-family: var(--sans); font-weight: 800; box-shadow: none; }
 
-.knapperad {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 12px;
-}
-.knapperad .knapp { font-size: 14px; }
+.knapp.bred { width: 100%; margin-top: 12px; }
 
 .hint {
   margin: 16px 0 0;
@@ -245,6 +243,8 @@ input::placeholder { color: rgba(185, 204, 219, .55); }
 
 /* ---------- Toppliste ---------- */
 .liste { margin: 14px 0 18px; text-align: left; }
+#sluttliste { margin: 18px 0 0; }
+#igjenknapp { margin-top: 16px; }
 .liste ol { list-style: none; margin: 0; padding: 0; }
 .liste li {
   display: grid;
@@ -263,20 +263,6 @@ input::placeholder { color: rgba(185, 204, 219, .55); }
 .liste .tall { font-family: var(--slab); font-size: 18px; }
 .liste .tom, .liste .laster, .liste .feil { text-align: center; color: var(--tekst-dempet); padding: 16px 8px; line-height: 1.45; }
 
-/* ---------- Kart ---------- */
-.kartskjerm { background: rgba(7, 21, 35, .92); padding: 0; place-items: stretch; }
-.kartramme {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  height: 100dvh;
-  padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
-}
-.karttopp { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 6px 10px; }
-.karttopp h2 { font-size: clamp(19px, 5vw, 28px); margin: 0; line-height: 1.15; }
-.kartknapper { display: flex; gap: 8px; flex-shrink: 0; }
-a.knapp { text-decoration: none; display: inline-flex; align-items: center; }
-.kartramme iframe { flex: 1; width: 100%; border: 0; border-radius: 14px; background: #fff; }
 
 /* ---------- Toast ---------- */
 .toast {
@@ -301,6 +287,34 @@ a.knapp { text-decoration: none; display: inline-flex; align-items: center; }
   .produkter img.stor { height: 68px; }
   .produkter img.boks { height: 46px; }
   .stortall { font-size: 72px; }
+}
+
+/* Lave vinduer, f.eks. når spillet er bygget inn på mack.no på mobil */
+@media (max-height: 560px) {
+  .skjerm { padding-top: 10px; padding-bottom: 10px; }
+  .kort { padding: 14px 16px 14px; border-radius: 18px; }
+  .avsender { font-size: 13px; }
+  h1 { font-size: clamp(40px, 12vw, 60px); }
+  h2 { font-size: 26px; }
+  .ingress { margin: 8px auto 4px; font-size: 14px; line-height: 1.4; }
+  .produkter { height: 54px; margin: 4px 0 8px; }
+  .produkter img { height: 44px; }
+  .produkter img.stor { height: 52px; }
+  .produkter img.boks { height: 36px; }
+  .hint { display: none; }
+  .knapp.hoved { font-size: 19px; padding: 11px 14px 9px; }
+  .knapp { min-height: 44px; padding: 10px 14px; }
+  .knapp.bred { margin-top: 8px; }
+  .stortall { font-size: 56px; }
+  .liste { margin: 8px 0 12px; }
+  .liste li { padding: 6px 10px; font-size: 15px; }
+  .liv img, .neste img { height: 26px; }
+}
+
+/* Smale mobiler */
+@media (max-width: 360px) {
+  .kort { padding-left: 14px; padding-right: 14px; }
+  .ingress { font-size: 15px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

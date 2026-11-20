@@ -1,8 +1,6 @@
 // Pipeslipp – Mack julebrus-spill
 // Sleden står stille på skjermen, husene ruller forbi under. Trykk for å slippe en julebrus.
 
-const KART_URL = 'https://app.powerbi.com/view?r=eyJrIjoiOGZhZjgwODgtMzhhYi00NmU3LTg4OTgtNmQzNWY5ZTUzNjNkIiwidCI6ImE0MTBmOTQ5LTNhOTMtNGU4OS04NTBjLWQ5MDFiNzNkZjAxZSIsImMiOjh9&pageName=ReportSection';
-
 // Lokalt serverer Node-serveren både spill og toppliste. På flibber.no (GitHub Pages) ligger topplisten på Railway.
 const API = ['localhost', '127.0.0.1'].includes(location.hostname) ? '' : 'https://flibber-production.up.railway.app/';
 
@@ -738,11 +736,11 @@ function løkke(nå) {
 }
 
 // ---------- Skjermer ----------
-const skjermer = ['start', 'slutt', 'toppliste', 'kart'];
+const skjermer = ['start', 'slutt', 'toppliste'];
 let forrigeSkjerm = 'start';
 function visSkjerm(navn) {
   for (const s of skjermer) $(s).hidden = s !== navn;
-  if (navn && navn !== 'kart' && navn !== 'toppliste') forrigeSkjerm = navn;
+  if (navn && navn !== 'toppliste') forrigeSkjerm = navn;
   const fokus = navn && $(navn).querySelector('.knapp.hoved, [data-lukk]');
   if (fokus) setTimeout(() => fokus.focus({ preventScroll: true }), 50);
 }
@@ -873,11 +871,6 @@ document.addEventListener('click', (e) => {
   const vis = e.target.closest('[data-vis]');
   if (vis) {
     const navn = vis.dataset.vis;
-    if (navn === 'kart') {
-      const ramme = $('kartiframe');
-      if (!ramme.src) ramme.src = KART_URL;
-      $('kartlenke').href = KART_URL;
-    }
     if (navn === 'toppliste') hentToppliste($('toppliste-innhold'));
     visSkjerm(navn);
   }
@@ -903,7 +896,7 @@ lerret.addEventListener('pointerdown', (e) => { e.preventDefault(); slipp(); });
 window.addEventListener('keydown', (e) => {
   if (e.target.tagName === 'INPUT') return;
   if ((e.code === 'Space' || e.code === 'ArrowDown') && tilstand === 'spiller') { e.preventDefault(); slipp(); }
-  if (e.code === 'Escape' && !$('kart').hidden) visSkjerm(tilstand === 'over' ? 'slutt' : forrigeSkjerm);
+  if (e.code === 'Escape' && !$('toppliste').hidden) visSkjerm(tilstand === 'over' ? 'slutt' : forrigeSkjerm);
 });
 document.addEventListener('visibilitychange', () => { forrige = performance.now(); });
 

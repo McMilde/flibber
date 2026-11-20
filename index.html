@@ -34,10 +34,7 @@
       <p class="ingress">Nissen har lastet sleden full av julebrus. Trykk for å slippe en flaske, og treff pipa på husene under deg. Bommer du tre ganger, er runden over.</p>
       <div class="produkter" id="produktrad" aria-hidden="true"></div>
       <button class="knapp hoved" id="startknapp">Start spillet</button>
-      <div class="knapperad">
-        <button class="knapp" data-vis="toppliste">Se topplisten</button>
-        <button class="knapp" data-vis="kart">Hvor kan jeg kjøpe julebrus?</button>
-      </div>
+      <button class="knapp bred" data-vis="toppliste">Se topplisten</button>
       <p class="hint">Tips: Slipp litt før pipa kommer. Treffer du midt i, får du dobbelt poeng.</p>
     </div>
   </section>
@@ -61,13 +58,10 @@
       </form>
       <p class="melding" id="lagremelding" role="status"></p>
 
-      <div class="liste" id="sluttliste"></div>
-
       <button class="knapp hoved" id="igjenknapp">Spill igjen</button>
-      <div class="knapperad">
-        <button class="knapp" id="delknapp">Del resultatet</button>
-        <button class="knapp" data-vis="kart">Hvor kan jeg kjøpe julebrus?</button>
-      </div>
+      <button class="knapp bred" id="delknapp">Del resultatet</button>
+
+      <div class="liste" id="sluttliste"></div>
     </div>
   </section>
 
@@ -81,19 +75,6 @@
     </div>
   </section>
 
-  <!-- Kart -->
-  <section class="skjerm kartskjerm" id="kart" hidden>
-    <div class="kartramme">
-      <div class="karttopp">
-        <h2>Her finner du Macks julebrus</h2>
-        <div class="kartknapper">
-          <a class="knapp liten" id="kartlenke" target="_blank" rel="noopener">Åpne stort</a>
-          <button class="knapp liten" data-lukk>Lukk</button>
-        </div>
-      </div>
-      <iframe id="kartiframe" title="Kart over butikker som selger Macks julebrus" loading="lazy" allowfullscreen></iframe>
-    </div>
-  </section>
 
   <div class="toast" id="toast" role="status" hidden></div>
 

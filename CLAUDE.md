@@ -8,7 +8,8 @@ Skriv forklaringer til eieren på vanlig norsk, uten faguttrykk.
 - Kun Macks egne julebrus er med: Mack God og Lett Julebrus (0,5 l og boks) og Trio Jule-Brus vanlig og Light (0,5 l og 1,5 l). Bildene ligger i `img/` og er klippet ut fra Macks produktbilder.
 - **Ingen premier, ingen konkurranse og ingen innsamling av e-post** (bevisst valgt 2026-11-20 for å slippe GDPR og konkurranseregler). Ikke legg dette til uten at eieren ber om det.
 - Topp 10-liste med valgfritt kallenavn. Navn som ikke fylles ut vises som «Anonym nisse». Et filter mot stygge ord ligger i `server/lib/navnefilter.js`.
-- Knappen «Hvor kan jeg kjøpe julebrus?» viser Macks offentlige Power BI-kart i en iframe (adressen ligger i `game.js`).
+- Butikkartet (Power BI) er fjernet fra spillet 2026-11-20 fordi eieren har lagt det rett over spillet på mack.no/julespill. Ikke legg det tilbake uten at han ber om det.
+- Spillet er bygget inn på https://mack.no/julespill/ med iframe. Det må fungere i lave vinduer (ned til ca. 480 px), så test mobil i 390×540 i tillegg til 390×780.
 - Spillet må ikke ligne «Brusregn» på juletid.no, der man fanger brus som faller.
 
 ## Drift (fra 2026-11-20)
