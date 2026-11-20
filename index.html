@@ -1,85 +1,102 @@
 <!doctype html>
 <html lang="no">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-<title>FLIBBER</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🫨</text></svg>" />
-<meta name="description" content="Hvor langt klarer du å flibbe?" />
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Pipeslipp – Mack julebrus</title>
+  <meta name="description" content="Slipp julebrus fra sleden og treff pipa. Et lite julespill fra Mack.">
+  <meta property="og:title" content="Pipeslipp – Mack julebrus">
+  <meta property="og:description" content="Slipp julebrus fra sleden og treff pipa. Hvor mange klarer du?">
+  <meta property="og:image" content="img/mack-lett-boks.png">
+  <meta name="theme-color" content="#0D2135">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230D2135'/%3E%3Crect x='12' y='4' width='8' height='5' rx='1' fill='%23D3202B'/%3E%3Cpath d='M11 10h10l2 5v13a2 2 0 0 1-2 2H11a2 2 0 0 1-2-2V15z' fill='%23FF7A1A'/%3E%3Crect x='9' y='17' width='14' height='6' fill='%23F3F7FA'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Figtree:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="spill"></canvas>
+  <canvas id="spill" aria-label="Spillområde: trykk for å slippe en julebrus"></canvas>
 
-  <div id="hud" class="hidden">
-    <div id="distanse">0 m</div>
-    <div id="kaosmeter">
-      <span id="kaosLabel">KAOS x1.0</span>
-      <div id="kaosBar"><div id="kaosFyll"></div></div>
+  <!-- Under spillet -->
+  <div id="hud" hidden>
+    <div class="liv" id="liv" aria-label="Liv igjen"></div>
+    <div class="poeng" id="poeng" aria-live="polite">0</div>
+    <button class="ikonknapp" id="lyd" aria-label="Skru av lyd" title="Lyd">🔊</button>
+    <div class="neste" id="neste"><img alt=""><span></span></div>
+  </div>
+
+  <!-- Startskjerm -->
+  <section class="skjerm" id="start">
+    <div class="kort">
+      <p class="avsender">Et julespill fra Mack</p>
+      <h1>Pipe&shy;slipp</h1>
+      <p class="ingress">Nissen har lastet sleden full av julebrus. Trykk for å slippe en flaske, og treff pipa på husene under deg. Bommer du tre ganger, er runden over.</p>
+      <div class="produkter" id="produktrad" aria-hidden="true"></div>
+      <button class="knapp hoved" id="startknapp">Start spillet</button>
+      <div class="knapperad">
+        <button class="knapp" data-vis="toppliste">Se topplisten</button>
+        <button class="knapp" data-vis="kart">Hvor kan jeg kjøpe julebrus?</button>
+      </div>
+      <p class="hint">Tips: Slipp litt før pipa kommer. Treffer du midt i, får du dobbelt poeng.</p>
     </div>
-  </div>
+  </section>
 
-  <div id="superkraftBanner" class="hidden">
-    ✨ FLIBBETIFLABB-BREIFLLABB ✨ <span id="superkraftTid">8.0</span>s
-  </div>
+  <!-- Slutt på runden -->
+  <section class="skjerm" id="slutt" hidden>
+    <div class="kort">
+      <p class="avsender">Runden er over</p>
+      <p class="stortall"><span id="sluttpoeng">0</span></p>
+      <p class="undertekst" id="sluttekst">poeng</p>
+      <p class="rekord" id="rekord"></p>
 
-  <div id="flykraftBanner" class="hidden">
-    🦅 FLIBBEVINGE — hold inne for å fly! 🦅 <span id="flykraftTid">8.0</span>s
-  </div>
+      <form id="navneskjema" hidden>
+        <p class="topp10" id="topp10tekst">Du kom på topplisten!</p>
+        <label for="navn">Navn på topplisten (valgfritt)</label>
+        <div class="navnerad">
+          <input id="navn" name="navn" maxlength="16" autocomplete="nickname" placeholder="Anonym nisse">
+          <button class="knapp hoved liten" type="submit">Lagre navn</button>
+        </div>
+        <p class="feilmelding" id="navnefeil" role="alert"></p>
+      </form>
+      <p class="melding" id="lagremelding" role="status"></p>
 
-  <div id="startskjerm" class="skjerm">
-    <h1>FLIBBER</h1>
-    <p class="tagline">Hvor langt klarer du å flibbe?</p>
-    <button id="visReglerKnapp" class="flibbknapp liten">❓ Slik spiller du</button>
-    <button id="startKnapp" class="flibbknapp">FLIBB</button>
-    <p class="hint">Trykk / mellomrom for å flibbe. Jo villere du spretter, jo høyere kaos-multiplikator.</p>
-    <p class="dagens-info" id="dagensBeste"></p>
-    <button id="visHighscoreKnapp" class="lenkeknapp">🏆 Topp 10</button>
-  </div>
+      <div class="liste" id="sluttliste"></div>
 
-  <div id="doedsskjerm" class="skjerm hidden">
-    <h2 id="doedsmelding">Du flibbet for nær sola.</h2>
-    <div class="stats">
-      <div><span id="sluttDistanse">0</span> m</div>
-      <div>Kaos x<span id="sluttKaos">1.0</span></div>
-      <div class="poeng"><span id="sluttPoeng">0</span> poeng</div>
+      <button class="knapp hoved" id="igjenknapp">Spill igjen</button>
+      <div class="knapperad">
+        <button class="knapp" id="delknapp">Del resultatet</button>
+        <button class="knapp" data-vis="kart">Hvor kan jeg kjøpe julebrus?</button>
+      </div>
     </div>
-    <p class="dagens-info" id="nyRekordTekst"></p>
+  </section>
 
-    <div id="highscoreSkjema" class="hidden">
-      <p class="hint">🎉 Du er blant de 10 beste! Skriv navnet ditt:</p>
-      <input type="text" id="highscoreNavn" maxlength="20" placeholder="Ditt navn" />
-      <button id="lagreHighscoreKnapp" class="flibbknapp liten">LAGRE PÅ LISTEN</button>
+  <!-- Toppliste -->
+  <section class="skjerm" id="toppliste" hidden>
+    <div class="kort">
+      <h2>Toppliste</h2>
+      <p class="undertekst">De ti beste leveransene akkurat nå</p>
+      <div class="liste" id="toppliste-innhold"></div>
+      <button class="knapp hoved" data-lukk>Tilbake</button>
     </div>
+  </section>
 
-    <button id="proveIgjenKnapp" class="flibbknapp">FLIBB IGJEN</button>
-    <button id="visHighscoreKnapp2" class="lenkeknapp">🏆 Se topp 10</button>
-    <button id="visReglerKnapp2" class="lenkeknapp">❓ Slik spiller du</button>
-  </div>
+  <!-- Kart -->
+  <section class="skjerm kartskjerm" id="kart" hidden>
+    <div class="kartramme">
+      <div class="karttopp">
+        <h2>Her finner du Macks julebrus</h2>
+        <div class="kartknapper">
+          <a class="knapp liten" id="kartlenke" target="_blank" rel="noopener">Åpne stort</a>
+          <button class="knapp liten" data-lukk>Lukk</button>
+        </div>
+      </div>
+      <iframe id="kartiframe" title="Kart over butikker som selger Macks julebrus" loading="lazy" allowfullscreen></iframe>
+    </div>
+  </section>
 
-  <div id="highscoreSkjerm" class="skjerm hidden">
-    <h2>🏆 Topp 10 Flibbere</h2>
-    <ol id="highscoreListe" class="highscore-liste"></ol>
-    <button id="lukkHighscoreKnapp" class="flibbknapp">LUKK</button>
-  </div>
+  <div class="toast" id="toast" role="status" hidden></div>
 
-  <div id="reglerSkjerm" class="skjerm hidden">
-    <h2>🫨 Slik fungerer FLIBBER</h2>
-    <ul class="regel-liste">
-      <li><span class="regel-ikon">👆</span><span class="regel-tekst">Trykk skjermen, klikk, eller bruk mellomromstasten for å «flibbe» (hoppe). Maks <strong>5 flibb</strong> før du må lande igjen.</span></li>
-      <li><span class="regel-ikon">🏃</span><span class="regel-tekst">Flibber springer automatisk framover hele tiden — du styrer bare hoppene, ikke farten.</span></li>
-      <li><span class="regel-ikon">🔥</span><span class="regel-tekst">Kaos-meteret fylles jo villere du spretter og snurrer. Høyt kaos gir høyere poeng-multiplikator.</span></li>
-      <li><span class="regel-ikon">🪤</span><span class="regel-tekst">Fjærer og vipper sender deg videre — men ikke alltid dit du vil. Sager og fall dreper deg momentant.</span></li>
-      <li><span class="regel-ikon">✨</span><span class="regel-tekst">Finn den sjeldne «Flibbetiflabb-breifllabb»-kraften: 8 sekunder der du ikke kan dø, kan flibbe i det uendelige, og kan holde inne knappen for å fly.</span></li>
-      <li><span class="regel-ikon">🦅</span><span class="regel-tekst">Finn «Flibbevinge»: en annen sjelden kraft som lar deg holde inne knappen for å fly fritt i 8 sekunder (men du kan fremdeles dø).</span></li>
-      <li><span class="regel-ikon">📅</span><span class="regel-tekst">Alle spillere får akkurat samme bane hver dag («Dagens Flibb»), så alle konkurrerer på likt grunnlag.</span></li>
-      <li><span class="regel-ikon">🏆</span><span class="regel-tekst">Havner du blant de 10 beste poengene noensinne, kommer du på den delte highscore-listen for alle spillere.</span></li>
-    </ul>
-    <button id="lukkReglerKnapp" class="flibbknapp">SKJØNER</button>
-  </div>
-
-  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
-  <script src="game.js"></script>
+  <script type="module" src="game.js"></script>
 </body>
 </html>

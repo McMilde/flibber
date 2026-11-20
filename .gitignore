@@ -1,4 +1,4 @@
-server/highscore.db
-server/__pycache__/
-*.pyc
-server.log
+data/
+node_modules/
+*.db
+.playwright-mcp/
